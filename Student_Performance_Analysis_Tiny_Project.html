@@ -1,0 +1,58 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Student Performance Analysis Using R</title>
+<style>
+body { font-family: Arial, sans-serif; max-width: 1000px; margin: 40px auto; line-height: 1.55; color:#222; padding:0 25px; }
+h1,h2,h3 { color:#1f3b5b; } h1 { text-align:center; margin-bottom:5px; }
+.subtitle { text-align:center; color:#666; } code, pre { font-family: Consolas, monospace; }
+pre { background:#f4f4f4; padding:14px; overflow-x:auto; border-radius:6px; }
+.data-table { border-collapse:collapse; width:100%; margin:15px 0 25px; }
+.data-table th,.data-table td { border:1px solid #ccc; padding:8px; text-align:left; }
+.data-table th { background:#eee; } figure { margin:25px 0; text-align:center; }
+figure img { max-width:760px; width:100%; } figcaption { font-weight:bold; margin-top:8px; }
+.note { background:#f7f7f7; padding:12px 16px; border-left:4px solid #777; }
+.pagebreak { page-break-before:always; }
+</style>
+</head>
+<body>
+<h1>Student Performance Analysis Using R</h1>
+<p class="subtitle"><b>Tiny Project - R Programming</b><br>Rendered Project Report</p>
+<h2>1. Introduction</h2>
+<p>This Tiny Project analyses student performance using R. It covers data importing, preprocessing, cleaning, statistical exploration, visualization, interpretation, findings, and conclusion.</p>
+<h3>Objectives</h3><ul><li>Import student performance data.</li><li>Clean and validate the data.</li><li>Calculate descriptive statistics.</li><li>Study relationships between academic variables.</li><li>Create graphs and plots.</li><li>Perform a simple regression analysis.</li><li>Interpret the results.</li></ul>
+<h2>2. Database / Data Importing</h2>
+<p>A CSV dataset is created automatically by the supplied R Markdown file when it is not present, and then imported with <code>read.csv()</code>. The rendered report uses the same 30-record dataset.</p>
+<pre>students &lt;- read.csv("student_performance.csv", stringsAsFactors = FALSE)
+head(students)</pre>
+<h2>3. Dataset Description</h2><p><b>Rows:</b> 30 &nbsp;&nbsp; <b>Columns:</b> 8</p>
+<table class="data-table"><tr><th>Variable</th><th>Description</th></tr>
+<tr><td>Student_ID</td><td>Unique student ID</td></tr><tr><td>Gender</td><td>Gender category</td></tr>
+<tr><td>Study_Hours</td><td>Average study hours per day</td></tr><tr><td>Attendance</td><td>Attendance percentage</td></tr>
+<tr><td>Previous_Marks</td><td>Previous academic marks</td></tr><tr><td>Assignment_Score</td><td>Assignment score</td></tr>
+<tr><td>Sleep_Hours</td><td>Average sleep hours</td></tr><tr><td>Final_Marks</td><td>Final examination marks</td></tr></table>
+<h2>4. Data Preprocessing and Cleaning</h2><p>No missing values are present, so no imputation is required. Duplicate rows: <b>0</b>.</p>
+<pre>students$Gender &lt;- as.factor(students$Gender)</pre>
+<h2>5. Statistical Exploration</h2>
+<table class="data-table"><tr><th>Measure</th><th>Value</th></tr><tr><td>Mean Final Marks</td><td>76.53</td></tr><tr><td>Median Final Marks</td><td>78.50</td></tr><tr><td>SD Final Marks</td><td>12.78</td></tr><tr><td>Mean Study Hours</td><td>4.93</td></tr><tr><td>Mean Attendance</td><td>84.27</td></tr><tr><td>Mean Previous Marks</td><td>74.80</td></tr><tr><td>Mean Assignment Score</td><td>77.57</td></tr></table>
+<h3>Correlation Analysis</h3><table class="data-table"><tr><th>Variable</th><th>Correlation with Final Marks</th></tr><tr><td>Study_Hours</td><td>0.979</td></tr><tr><td>Attendance</td><td>0.987</td></tr><tr><td>Previous_Marks</td><td>0.996</td></tr><tr><td>Assignment_Score</td><td>0.997</td></tr><tr><td>Sleep_Hours</td><td>0.882</td></tr></table>
+<p>A positive correlation means higher values tend to occur with higher final marks in this sample. Correlation does not prove causation.</p>
+<h2>6. Graphs and Plots</h2><figure><img src="final_marks_hist.png"><figcaption>Figure 1: Distribution of Final Marks</figcaption></figure>
+<figure><img src="study_vs_final.png"><figcaption>Figure 2: Study Hours vs Final Marks</figcaption></figure>
+<figure><img src="attendance_vs_final.png"><figcaption>Figure 3: Attendance vs Final Marks</figcaption></figure>
+<figure><img src="previous_vs_final.png"><figcaption>Figure 4: Previous Marks vs Final Marks</figcaption></figure>
+<figure><img src="assignment_vs_final.png"><figcaption>Figure 5: Assignment Score vs Final Marks</figcaption></figure>
+<h2>7. Statistical Model</h2><pre>model &lt;- lm(Final_Marks ~ Study_Hours, data = students)
+summary(model)</pre>
+<table class="data-table"><tr><th>Regression Statistic</th><th>Value</th></tr><tr><td>Intercept</td><td>45.1311</td></tr><tr><td>Study Hours coefficient</td><td>6.3653</td></tr><tr><td>R-squared</td><td>0.9575</td></tr><tr><td>p-value</td><td>0.000000</td></tr></table>
+<h2>8. Key Findings</h2><ol><li>The dataset contains 30 student records and 8 variables.</li><li>No missing values or duplicate rows were found.</li><li>Descriptive statistics summarize student performance.</li><li>Correlation analysis measures linear associations with final marks.</li><li>Scatter plots make relationships easier to understand visually.</li><li>Simple regression provides a statistical model for study hours and final marks.</li><li>The findings describe this sample and should not be generalized to all students.</li></ol>
+<h2>9. Conclusion</h2><p>This project demonstrates a complete R Markdown workflow for student-performance analysis, including data importing, cleaning, preprocessing, statistical analysis, visualization, regression, interpretation, and reporting.</p>
+<h2>10. Limitations</h2><ul><li>The dataset contains only 30 students.</li><li>The data is intended for educational demonstration.</li><li>Correlation does not establish causation.</li><li>Several factors affecting performance are not included.</li></ul>
+<h2>11. Future Scope</h2><p>Future work can include a larger real-world dataset, multiple regression, hypothesis testing, machine-learning prediction, and an interactive R Shiny dashboard.</p>
+<h2>12. Reproducibility Check</h2><pre>Dataset: student_performance.csv
+Rows: 30
+Columns: 8
+Missing values: 0
+Duplicate rows: 0</pre>
+</body></html>

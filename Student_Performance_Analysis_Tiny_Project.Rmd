@@ -1,0 +1,256 @@
+---
+title: "Student Performance Analysis Using R"
+author: "Tiny Project - R Programming"
+date: "`r format(Sys.Date(), '%d %B %Y')`"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    number_sections: true
+    theme: readable
+---
+
+# 1. Introduction
+
+This Tiny Project analyses student performance using R. It covers data importing, preprocessing, cleaning, statistical exploration, visualization, interpretation, findings, and conclusion.
+
+## Objectives
+
+- Import student performance data.
+- Clean and validate the data.
+- Calculate descriptive statistics.
+- Study relationships between academic variables.
+- Create graphs and plots.
+- Perform a simple regression analysis.
+- Interpret the results.
+
+# 2. Packages
+
+```{r setup, message=FALSE, warning=FALSE}
+packages <- c("tidyverse", "knitr")
+new_packages <- packages[!(packages %in% rownames(installed.packages()))]
+if (length(new_packages) > 0)
+  install.packages(new_packages, repos = "https://cloud.r-project.org")
+
+library(tidyverse)
+library(knitr)
+options(scipen = 999)
+```
+
+# 3. Database / Data Importing
+
+```{r import-data, message=FALSE, warning=FALSE}
+data_file <- "student_performance.csv"
+students <- read.csv(data_file, stringsAsFactors = FALSE)
+head(students)
+```
+
+# 4. Dataset Description
+
+| Variable | Description |
+|---|---|
+| Student_ID | Unique student ID |
+| Gender | Gender category |
+| Study_Hours | Average study hours per day |
+| Attendance | Attendance percentage |
+| Previous_Marks | Previous academic marks |
+| Assignment_Score | Assignment score |
+| Sleep_Hours | Average sleep hours |
+| Final_Marks | Final examination marks |
+
+```{r dimensions}
+cat("Rows:", nrow(students), "\n")
+cat("Columns:", ncol(students), "\n")
+str(students)
+summary(students)
+```
+
+# 5. Data Preprocessing and Cleaning
+
+## Missing values
+
+```{r missing}
+missing_values <- colSums(is.na(students))
+kable(data.frame(Variable = names(missing_values),
+                 Missing_Values = as.integer(missing_values)),
+      caption = "Missing Values")
+```
+
+## Duplicate records
+
+```{r duplicates}
+cat("Duplicate rows:", sum(duplicated(students)))
+```
+
+## Data types
+
+```{r factor}
+students$Gender <- as.factor(students$Gender)
+str(students)
+```
+
+## Range validation
+
+```{r validation}
+validation <- students %>%
+  summarise(
+    Min_Study_Hours = min(Study_Hours),
+    Max_Study_Hours = max(Study_Hours),
+    Min_Attendance = min(Attendance),
+    Max_Attendance = max(Attendance),
+    Min_Final_Marks = min(Final_Marks),
+    Max_Final_Marks = max(Final_Marks)
+  )
+kable(validation, caption = "Range Validation")
+```
+
+# 6. Statistical Exploration
+
+## Descriptive statistics
+
+```{r descriptive}
+stats <- students %>%
+  summarise(
+    Mean_Final = mean(Final_Marks),
+    Median_Final = median(Final_Marks),
+    SD_Final = sd(Final_Marks),
+    Mean_Study = mean(Study_Hours),
+    Mean_Attendance = mean(Attendance),
+    Mean_Previous = mean(Previous_Marks),
+    Mean_Assignment = mean(Assignment_Score)
+  )
+kable(round(stats, 2), caption = "Descriptive Statistics")
+```
+
+## Gender-wise analysis
+
+```{r gender-analysis}
+gender_summary <- students %>%
+  group_by(Gender) %>%
+  summarise(
+    Students = n(),
+    Average_Final_Marks = mean(Final_Marks),
+    Average_Attendance = mean(Attendance),
+    Average_Study_Hours = mean(Study_Hours)
+  )
+kable(round(gender_summary, 2), caption = "Gender-wise Performance")
+```
+
+## Correlation analysis
+
+```{r correlation}
+correlations <- students %>%
+  summarise(
+    Study_Hours = cor(Study_Hours, Final_Marks),
+    Attendance = cor(Attendance, Final_Marks),
+    Previous_Marks = cor(Previous_Marks, Final_Marks),
+    Assignment_Score = cor(Assignment_Score, Final_Marks),
+    Sleep_Hours = cor(Sleep_Hours, Final_Marks)
+  )
+kable(round(correlations, 3), caption = "Correlation with Final Marks")
+```
+
+# 7. Graph and Plot Creation
+
+```{r histogram, fig.width=7, fig.height=5}
+ggplot(students, aes(Final_Marks)) +
+  geom_histogram(binwidth = 5, boundary = 0, color = "black") +
+  labs(title = "Distribution of Final Marks",
+       x = "Final Marks", y = "Number of Students") +
+  theme_minimal()
+```
+
+```{r study-plot, fig.width=7, fig.height=5}
+ggplot(students, aes(Study_Hours, Final_Marks)) +
+  geom_point(size = 3) +
+  geom_smooth(method = "lm", se = FALSE) +
+  labs(title = "Study Hours vs Final Marks",
+       x = "Study Hours per Day", y = "Final Marks") +
+  theme_minimal()
+```
+
+```{r attendance-plot, fig.width=7, fig.height=5}
+ggplot(students, aes(Attendance, Final_Marks)) +
+  geom_point(size = 3) +
+  geom_smooth(method = "lm", se = FALSE) +
+  labs(title = "Attendance vs Final Marks",
+       x = "Attendance (%)", y = "Final Marks") +
+  theme_minimal()
+```
+
+```{r previous-plot, fig.width=7, fig.height=5}
+ggplot(students, aes(Previous_Marks, Final_Marks)) +
+  geom_point(size = 3) +
+  geom_smooth(method = "lm", se = FALSE) +
+  labs(title = "Previous Marks vs Final Marks",
+       x = "Previous Marks", y = "Final Marks") +
+  theme_minimal()
+```
+
+```{r assignment-plot, fig.width=7, fig.height=5}
+ggplot(students, aes(Assignment_Score, Final_Marks)) +
+  geom_point(size = 3) +
+  geom_smooth(method = "lm", se = FALSE) +
+  labs(title = "Assignment Score vs Final Marks",
+       x = "Assignment Score", y = "Final Marks") +
+  theme_minimal()
+```
+
+```{r boxplot, fig.width=7, fig.height=5}
+ggplot(students, aes(Gender, Final_Marks)) +
+  geom_boxplot() +
+  labs(title = "Final Marks by Gender",
+       x = "Gender", y = "Final Marks") +
+  theme_minimal()
+```
+
+# 8. Statistical Model
+
+```{r regression}
+model <- lm(Final_Marks ~ Study_Hours, data = students)
+summary(model)
+regression_table <- as.data.frame(summary(model)$coefficients)
+kable(round(regression_table, 4), caption = "Regression Results")
+```
+
+# 9. Findings
+
+1. The dataset contains 30 student records and 8 variables.
+2. Missing-value and duplicate checks were performed.
+3. Descriptive statistics summarize student performance.
+4. Correlation analysis measures linear associations with final marks.
+5. Scatter plots provide visual evidence of relationships.
+6. Regression provides a simple statistical model for the relationship between study hours and final marks.
+7. Results describe this sample and should not be generalized to all students.
+
+# 10. Conclusion
+
+This project demonstrates a complete R Markdown workflow for student-performance analysis, including data importing, cleaning, preprocessing, statistical analysis, visualization, regression, interpretation, and reporting.
+
+# 11. Limitations
+
+- The dataset contains only 30 students.
+- The data is intended for educational demonstration.
+- Correlation does not establish causation.
+- Several factors affecting performance are not included.
+- The sample should not be treated as representative of all students.
+
+# 12. Future Scope
+
+Future work can include a larger real-world dataset, multiple regression, hypothesis testing, machine-learning prediction, and an interactive R Shiny dashboard.
+
+# 13. Reproducibility Check
+
+```{r reproducibility}
+cat("Rows:", nrow(students), "\n")
+cat("Columns:", ncol(students), "\n")
+cat("Missing values:", sum(is.na(students)), "\n")
+cat("Duplicate rows:", sum(duplicated(students)), "\n")
+```
+
+# 14. References
+
+1. R Core Team. *R: A Language and Environment for Statistical Computing*.
+2. Posit. *R Markdown Documentation*.
+3. Wickham, H. et al. *Welcome to the Tidyverse*.
+4. R documentation for `read.csv()`, `summary()`, `cor()`, `lm()`, and `ggplot2`.
